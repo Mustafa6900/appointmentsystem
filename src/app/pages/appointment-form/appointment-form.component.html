@@ -1,0 +1,8 @@
+<div class="rounded-lg shadow-lg p-5">
+  <p-selectButton [options]="stateOptions"
+                  [(ngModel)]="selectedValue"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="custom-select-button" />
+  <app-appointment-list />
+</div>
