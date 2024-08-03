@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
-import { AppointmentFormComponent } from './pages/appointment-form/appointment-form.component';
-
+import { AppointmentListComponent } from './components/appointment-list/appointment-list.component';
 export const routes: Routes = [
   { path: '', redirectTo: '/appointments', pathMatch: 'full' },
-  { path: 'appointments', component: AppointmentFormComponent },
+  { path: 'appointments', component: AppointmentListComponent },
 ];

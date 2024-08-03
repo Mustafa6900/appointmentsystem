@@ -1,22 +1,23 @@
 <div class="card">
-  <p-toast />
+  <p-toast></p-toast>
+
   <p-toolbar styleClass="mb-4 gap-2">
     <ng-template pTemplate="left">
       <p-button severity="success"
                 label="New"
                 icon="pi pi-plus"
                 class="mr-2"
-                (onClick)="openNew()" />
+                (click)="openNew()"></p-button>
       <p-button severity="danger"
                 label="Delete"
                 icon="pi pi-trash"
-                (onClick)="deleteSelectedProducts()"
-                [disabled]="!selectedProducts || !selectedProducts.length" />
+                (click)="deleteSelectedAppointment()"
+                [disabled]="!selectedProducts || !selectedProducts.length"></p-button>
     </ng-template>
   </p-toolbar>
 
   <p-table #dt
-           [value]="products"
+           [value]="appointments"
            [rows]="10"
            [tableStyle]="{ 'min-width': '75rem' }"
            [(selection)]="selectedProducts"
@@ -27,141 +28,140 @@
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 4rem">
-          <p-tableHeaderCheckbox />
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
-        <th pSortableColumn="name"
+        <th pSortableColumn="appointmentTitle"
             style="min-width: 18rem">
-          Name <p-sortIcon field="name" />
+          Appointment Title <p-sortIcon field="appointmentTitle"></p-sortIcon>
         </th>
-        <th pSortableColumn="name"
+        <th pSortableColumn="customerName"
             style="min-width: 18rem">
-          Name <p-sortIcon field="name" />
+          Customer Name <p-sortIcon field="customerName"></p-sortIcon>
         </th>
-        <th pSortableColumn="category"
+        <th pSortableColumn="appointmentDate"
             style="min-width: 18rem">
-          Category <p-sortIcon field="category" />
+          Appointment Date <p-sortIcon field="appointmentDate"></p-sortIcon>
         </th>
-        <th pSortableColumn="category"
+        <th pSortableColumn="appointmentTime"
             style="min-width: 18rem">
-          Category <p-sortIcon field="category" />
+          Appointment Time <p-sortIcon field="appointmentTime"></p-sortIcon>
         </th>
         <th></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body"
-                 let-product>
+                 let-appointment>
       <tr>
         <td>
-          <p-tableCheckbox [value]="product" />
+          <p-tableCheckbox [value]="appointment"></p-tableCheckbox>
         </td>
         <td>
-          {{ product.name }}
+          {{ appointment.appointmentTitle }}
         </td>
         <td>
-          {{ product.name }}
+          {{ appointment.customerName }}
         </td>
         <td>
-          {{ product.category }}
+          {{ appointment.appointmentDate | date:'yyyy-MM-dd' }}
         </td>
         <td>
-          {{ product.category }}
+          {{ appointment.appointmentTime }}
         </td>
-
         <td>
           <p-button class="mr-4 text-green-500"
                     [rounded]="true"
                     [outlined]="true"
                     severity="success"
-                    (onClick)="editProduct(product)">
-            Düzenle </p-button>
-
+                    (click)="editAppointment(appointment)">
+            Edit
+          </p-button>
           <p-button class="mr-2 text-red-500"
                     severity="danger"
                     [rounded]="true"
                     [outlined]="true"
-                    (onClick)="deleteProduct(product)">
-            Sil </p-button>
+                    (click)="deleteAppointment(appointment)">
+            Delete
+          </p-button>
         </td>
       </tr>
     </ng-template>
     <ng-template pTemplate="summary">
       <div class="flex align-items-center justify-content-between">
-        In total there are {{ products ? products.length : 0 }} products.
+        In total there are {{ appointments ? appointments.length : 0 }} appointments.
       </div>
     </ng-template>
   </p-table>
 
   <p-dialog [(visible)]="productDialog"
             [style]="{ width: '450px', background: '#f4f4f4' }"
-            header="Product Details"
+            header="Appointment Details"
             [modal]="true"
             styleClass="p-fluid">
     <ng-template pTemplate="content">
       <div class="field">
-        <label for="name">Name</label>
+        <label for="appointmentTitle">Appointment Title</label>
         <input type="text"
                pInputText
-               id="name"
-               [(ngModel)]="product.name"
+               id="appointmentTitle"
+               [(ngModel)]="appointment.appointmentTitle"
                required
                autofocus />
         <small class="p-error"
-               *ngIf="submitted && !product.name">
-          Name is required.
+               *ngIf="submitted && !appointment.appointmentTitle">
+          Appointment Title is required.
         </small>
       </div>
       <div class="field">
-        <label for="name">Name</label>
+        <label for="customerName">Customer Name</label>
         <input type="text"
                pInputText
-               id="name"
-               [(ngModel)]="product.name"
+               id="customerName"
+               [(ngModel)]="appointment.customerName"
                required
                autofocus />
         <small class="p-error"
-               *ngIf="submitted && !product.name">
-          Name is required.
+               *ngIf="submitted && !appointment.customerName">
+          Customer Name is required.
         </small>
       </div>
       <div class="field">
-        <label for="name">Name</label>
-        <input type="text"
+        <label for="appointmentDate">Appointment Date</label>
+        <input type="date"
                pInputText
-               id="name"
-               [(ngModel)]="product.name"
+               id="appointmentDate"
+               [(ngModel)]="appointment.appointmentDate"
                required
                autofocus />
         <small class="p-error"
-               *ngIf="submitted && !product.name">
-          Name is required.
+               *ngIf="submitted && !appointment.appointmentDate">
+          Appointment Date is required.
         </small>
       </div>
       <div class="field">
-        <label for="name">Name</label>
-        <input type="text"
+        <label for="appointmentTime">Appointment Time</label>
+        <input type="time"
                pInputText
-               id="name"
-               [(ngModel)]="product.name"
+               id="appointmentTime"
+               [(ngModel)]="appointment.appointmentTime"
                required
                autofocus />
         <small class="p-error"
-               *ngIf="submitted && !product.name">
-          Name is required.
+               *ngIf="submitted && !appointment.appointmentTime">
+          Appointment Time is required.
         </small>
       </div>
-
     </ng-template>
 
     <ng-template pTemplate="footer">
       <p-button label="Cancel"
                 icon="pi pi-times"
                 [text]="true"
-                (onClick)="hideDialog()" />
+                (click)="hideDialog()"></p-button>
       <p-button label="Save"
                 icon="pi pi-check"
                 [text]="true"
-                (onClick)="saveProduct()" />
+                (click)="saveAppointment()"></p-button>
     </ng-template>
   </p-dialog>
-  <p-confirmDialog [style]="{ width: '450px' }" />
+  <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
 </div>

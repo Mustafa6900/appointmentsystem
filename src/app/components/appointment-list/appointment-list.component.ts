@@ -1,101 +1,141 @@
 import { Component, OnInit } from '@angular/core';
 import { AppointmentService } from '../../services/appointment.service';
 import { Appointment } from '../../models/appointment.model';
+import { CommonModule } from '@angular/common';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
-import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { FileUploadModule } from 'primeng/fileupload';
-import { DropdownModule } from 'primeng/dropdown';
-import { TagModule } from 'primeng/tag';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RatingModule } from 'primeng/rating';
 import { FormsModule } from '@angular/forms';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 
-
-
-interface Column {
-  field: string;
-  header: string;
-}
 @Component({
   selector: 'app-appointment-list',
   standalone: true,
   templateUrl: './appointment-list.component.html',
   styleUrls: ['./appointment-list.component.css'],
   providers: [MessageService, ConfirmationService, AppointmentService],
-  imports: [IconFieldModule, InputIconModule, TableModule, DialogModule, RippleModule, ButtonModule, ToastModule, ToolbarModule, ConfirmDialogModule, InputTextModule, InputTextareaModule, CommonModule, FileUploadModule, DropdownModule, TagModule, RadioButtonModule, RatingModule, InputTextModule, FormsModule, InputNumberModule],
+  imports: [CommonModule, TableModule, DialogModule, ButtonModule, ToastModule, ToolbarModule, ConfirmDialogModule, InputTextModule, FormsModule],
 })
 export class AppointmentListComponent implements OnInit {
   productDialog: boolean = false;
-
-  products!: Appointment[];
-
-  product!: Appointment;
-
+  appointments!: Appointment[];
+  error: string | null = null;
+  appointment!: Appointment;
   selectedProducts!: Appointment[] | null;
-
   submitted: boolean = false;
 
-  statuses!: any[];
-
-  clonedProducts: { [s: string]: Appointment } = {};
-  constructor(private productService: AppointmentService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
+  constructor(private appointmentService: AppointmentService, private messageService: MessageService, private confirmationService: ConfirmationService) { }
 
   ngOnInit() {
-    this.productService.getProducts().then((data) => (this.products = data));
-
-    this.statuses = [
-      { label: 'INSTOCK', value: 'instock' },
-      { label: 'LOWSTOCK', value: 'lowstock' },
-      { label: 'OUTOFSTOCK', value: 'outofstock' }
-    ];
+    this.loadAppointments();
   }
 
   openNew() {
-    this.product = {};
+    this.appointment = {};
     this.submitted = false;
     this.productDialog = true;
   }
 
-  deleteSelectedProducts() {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete the selected products?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.products = this.products.filter((val) => !this.selectedProducts?.includes(val));
-        this.selectedProducts = null;
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+  loadAppointments(): void {
+    this.appointmentService.getAppointments().subscribe({
+      next: (data) => {
+        this.appointments = data;
+        this.error = null;
+        console.log('Appointments loaded:', data);
+      },
+      error: (err) => {
+        console.error('Failed to load appointments:', err);
+        this.error = 'Failed to load appointments. Please try again later.';
       }
     });
   }
 
-  editProduct(product: Appointment) {
-    this.product = { ...product };
+  saveAppointment() {
+    this.submitted = true;
+
+    if (this.appointment.customerName?.trim()) {
+      if (this.appointment.id) {
+        this.appointmentService.updateAppointment(this.appointment).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Updated', life: 3000 });
+            this.loadAppointments();
+          },
+          error: (err) => {
+            console.error('Failed to update appointment:', err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update appointment', life: 3000 });
+          }
+        });
+      } else {
+        this.appointment.id = this.createId();
+        this.appointmentService.addAppointment(this.appointment).subscribe({
+          next: (newAppointment) => {
+            this.appointments.push(newAppointment);
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Created', life: 3000 });
+          },
+          error: (err) => {
+            console.error('Failed to add appointment:', err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add appointment', life: 3000 });
+          }
+        });
+      }
+
+      this.appointments = [...this.appointments];
+      this.productDialog = false;
+      this.appointment = {};
+    }
+  }
+
+  editAppointment(appointment: Appointment) {
+    this.appointment = { ...appointment };
     this.productDialog = true;
   }
 
-  deleteProduct(product: Appointment) {
+  deleteAppointment(appointment: Appointment) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + product.name + '?',
+      message: 'Are you sure you want to delete ' + appointment.customerName + '?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.products = this.products.filter((val) => val.id !== product.id);
-        this.product = {};
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+        this.appointments = this.appointments.filter((val) => val.id !== appointment.id);
+        this.appointmentService.deleteAppointment(appointment.id as string).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Deleted', life: 3000 });
+            this.loadAppointments();
+          },
+          error: (err) => {
+            console.error('Failed to delete appointment:', err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete appointment', life: 3000 });
+          }
+        });
+      }
+    });
+  }
+
+  deleteSelectedAppointment() {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete the selected appointments?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.appointments = this.appointments.filter((val) => !this.selectedProducts?.includes(val));
+        this.selectedProducts?.forEach((appointment) => {
+          this.appointmentService.deleteAppointment(appointment.id as string).subscribe({
+            next: () => {
+              this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Appointment Deleted', life: 3000 });
+              this.loadAppointments();
+            },
+            error: (err) => {
+              console.error('Failed to delete appointment:', err);
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete appointment', life: 3000 });
+            }
+          });
+        });
+        this.selectedProducts = null;
       }
     });
   }
@@ -105,30 +145,10 @@ export class AppointmentListComponent implements OnInit {
     this.submitted = false;
   }
 
-  saveProduct() {
-    this.submitted = true;
-
-    if (this.product.name?.trim()) {
-      if (this.product.id) {
-        this.products[this.findIndexById(this.product.id)] = this.product;
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-      } else {
-        this.product.id = this.createId();
-        this.product.image = 'product-placeholder.svg';
-        this.products.push(this.product);
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-      }
-
-      this.products = [...this.products];
-      this.productDialog = false;
-      this.product = {};
-    }
-  }
-
   findIndexById(id: string): number {
     let index = -1;
-    for (let i = 0; i < this.products.length; i++) {
-      if (this.products[i].id === id) {
+    for (let i = 0; i < this.appointments.length; i++) {
+      if (this.appointments[i].id === id) {
         index = i;
         break;
       }
@@ -144,32 +164,5 @@ export class AppointmentListComponent implements OnInit {
       id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return id;
-  }
-  onRowEditInit(product: Appointment) {
-    this.clonedProducts[product.id as string] = { ...product };
-  }
-
-  onRowEditSave(product: Appointment) {
-    delete this.clonedProducts[product.id as string];
-    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product is updated' });
-
-  }
-
-  onRowEditCancel(product: Appointment, index: number) {
-    this.products[index] = this.clonedProducts[product.id as string];
-    delete this.clonedProducts[product.id as string];
-  }
-
-  getSeverity(status: string) {
-    switch (status) {
-      case 'INSTOCK':
-        return 'success';
-      case 'LOWSTOCK':
-        return 'warning';
-      case 'OUTOFSTOCK':
-        return 'danger';
-      default:
-        return '';
-    }
   }
 }

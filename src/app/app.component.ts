@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AppointmentFormComponent } from './pages/appointment-form/appointment-form.component';
 import { PrimeNGConfig } from 'primeng/api';
+import { AppointmentListComponent } from './components/appointment-list/appointment-list.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AppointmentFormComponent],
+  imports: [RouterOutlet, AppointmentListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
