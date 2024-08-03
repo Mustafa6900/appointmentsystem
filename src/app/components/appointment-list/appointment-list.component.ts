@@ -46,7 +46,6 @@ export class AppointmentListComponent implements OnInit {
       next: (data) => {
         this.appointments = data;
         this.error = null;
-        console.log('Appointments loaded:', data);
       },
       error: (err) => {
         console.error('Failed to load appointments:', err);
@@ -144,19 +143,7 @@ export class AppointmentListComponent implements OnInit {
     this.productDialog = false;
     this.submitted = false;
   }
-
-  findIndexById(id: string): number {
-    let index = -1;
-    for (let i = 0; i < this.appointments.length; i++) {
-      if (this.appointments[i].id === id) {
-        index = i;
-        break;
-      }
-    }
-
-    return index;
-  }
-
+  
   createId(): string {
     let id = '';
     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
