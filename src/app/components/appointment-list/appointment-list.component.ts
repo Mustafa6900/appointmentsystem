@@ -96,7 +96,7 @@ export class AppointmentListComponent implements OnInit {
 
   deleteAppointment(appointment: Appointment) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + appointment.customerName + '?',
+      message: 'Are you sure you want to delete ' + appointment.appointmentTitle + '?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -143,7 +143,7 @@ export class AppointmentListComponent implements OnInit {
     this.productDialog = false;
     this.submitted = false;
   }
-  
+
   createId(): string {
     let id = '';
     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
