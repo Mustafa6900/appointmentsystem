@@ -1,3 +1,12 @@
+
+# Screenshots
+
+![image](https://github.com/user-attachments/assets/a13260b3-abe6-430b-868d-4b0b3ae15d65)
+![image](https://github.com/user-attachments/assets/fc421360-a779-43b7-8def-3dec1c72eec4)
+![image](https://github.com/user-attachments/assets/bc7734e5-e553-4f96-822b-a74f0f103edf)
+
+
+
 # Appointmentsystem
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.3.
